@@ -1,0 +1,44 @@
+.card {
+  padding: 1.5rem;
+  border-radius: 12px;
+  color: white;
+  margin: 1rem 0;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  font-family: 'Fira Code', monospace;
+  max-width: 400px;
+
+  &.savings {
+    background: linear-gradient(135deg, #1976d2, #42a5f5);
+  }
+  &.checking {
+    background: linear-gradient(135deg, #388e3c, #66bb6a);
+  }
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    opacity: 0.9;
+    margin-bottom: 1rem;
+  }
+
+  .owner {
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .balance {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+
+    .currency {
+      font-size: 0.9rem;
+      opacity: 0.8;
+    }
+    .amount {
+      font-size: 2rem;
+      font-weight: bold;
+    }
+  }
+}
