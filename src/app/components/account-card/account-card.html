@@ -1,15 +1,25 @@
 <div
   class="card"
-  [class.savings]="account.accountType == 'savings'"
-  [class.checking]="account.accountType == 'checking'"
+  [class.savings]="account().accountType === 'savings'"
+  [class.checking]="account().accountType === 'checking'"
+  [class.selected]="isSelected()"
+  (click)="onCardClick()"
 >
+  <button class="delete-btn" (click)="onDelete($event)" title="Hapus akun">×</button>
+
   <div class="header">
-    <span class="type">{{ account.accountType == 'savings' ? 'Tabungan' : 'Giro' }}</span>
-    <span class="number">{{ account.accountNumber }}</span>
+    <span class="type">{{
+      account().accountType === 'savings' ? 'tabungan' : ('giro' | titlecase)
+    }}</span>
+    <span class="number">{{ account().accountNumber }}</span>
   </div>
-  <div class="owner">{{ account.ownerName }}</div>
+  <div class="owner">{{ account().ownerName | uppercase }}</div>
   <div class="balance">
-    <span class="currency">{{ account.currency }}</span>
-    <span class="amount">{{ account.balance | number: '1.0-0' }}</span>
+    <span class="currency">{{ account().currency }}</span>
+    <span class="amount">{{ account().balance | number: '1.0-0' }}</span>
   </div>
+
+  @if (isSelected()) {
+    <div class="selected-badge">✓ Dipilih</div>
+  }
 </div>
