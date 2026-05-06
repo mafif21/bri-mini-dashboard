@@ -1,26 +1,28 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AccountCard } from './components/account-card/account-card';
 import { BalanceSummary } from './components/balance-summary/balance-summary';
+import { TransactionList } from './components/transaction-list/transaction-list';
 import { Account } from './models/account.model';
+import { AccountService } from './services/account_service';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [FormsModule, AccountCard, CommonModule, BalanceSummary],
+  imports: [FormsModule, AccountCard, CommonModule, BalanceSummary, TransactionList],
   template: `
     <div class="page">
       <header>
         <h1>Halo, {{ name() }}! 👋</h1>
         <p class="subtitle">
           Total saldo:
-          <strong>Rp.{{ totalBalance() | number: '1.0-0' }}</strong>
+          <strong>Rp.{{ accountService.totalBalance() | number: '1.0-0' }}</strong>
         </p>
-        <p class="account-count">Kamu punya: {{ totalAccount() }} akun aktif</p>
+        <p class="account-count">Kamu punya: {{ accountService.accountTotal() }} akun aktif</p>
       </header>
 
-      <app-balance-summary [totalBalance]="totalBalance()"></app-balance-summary>
+      <app-balance-summary [totalBalance]="accountService.totalBalance()"></app-balance-summary>
 
       @if (selectedAccount()) {
         <div class="selected-info">
@@ -29,12 +31,12 @@ import { Account } from './models/account.model';
         </div>
       }
 
-      @for (account of accounts(); track account.id) {
+      @for (account of accountService.accounts(); track account.id) {
         <app-account-card
           [account]="account"
           [isSelected]="account.id === selectedId()"
           (cardClicked)="selectedCard($event)"
-          (cardDeleted)="deletedCard($event)"
+          (cardDeleted)="onCardDelete($event)"
         ></app-account-card>
       } @empty {
         <p class="empty">Belum ada akun.</p>
@@ -44,6 +46,20 @@ import { Account } from './models/account.model';
         <button (click)="addRandomAccount()">+ Tambah akun</button>
         <button (click)="resetData()" class="secondary">Hapus semua</button>
       </div>
+
+      @if (accountService.accountTotal() > 1) {
+        <div class="transfer-demo">
+          <h3>🧪 Test transfer</h3>
+          <button (click)="testTransfer()">Transfer Rp100,000 dari akun 1 ke akun 2</button>
+          @if (transferMessage()) {
+            <p [class.success]="transferStatus()" [class.error]="!transferStatus()">
+              {{ transferMessage() }}
+            </p>
+          }
+        </div>
+      }
+
+      <app-transaction-list></app-transaction-list>
     </div>
   `,
   styles: [
@@ -55,15 +71,11 @@ import { Account } from './models/account.model';
         margin: 2rem auto;
       }
       header {
-        margin-bottom: 2rem;
+        margin-bottom: 1rem;
       }
       h1 {
         color: #1976d2;
         margin: 0 0 0.5rem;
-      }
-      .subtitle {
-        color: #555;
-        margin: 0.25rem 0;
       }
       .account-count {
         color: #888;
@@ -87,6 +99,24 @@ import { Account } from './models/account.model';
         display: flex;
         gap: 0.5rem;
       }
+      .transfer-demo {
+        margin-top: 2rem;
+        padding: 1rem;
+        background: #f0f4f8;
+        border-radius: 8px;
+      }
+      .transfer-demo h3 {
+        margin-top: 0;
+        color: #455a64;
+      }
+      .success {
+        color: #2e7d32;
+        font-weight: bold;
+      }
+      .error {
+        color: #c62828;
+        font-weight: bold;
+      }
       button {
         padding: 0.6rem 1.2rem;
         cursor: pointer;
@@ -106,75 +136,43 @@ import { Account } from './models/account.model';
   ],
 })
 export class App {
+  // service
+  accountService = inject(AccountService);
+
+  // ui only state data
   name = signal('Muhammad Afif');
-  dayNumber = signal(1);
   selectedId = signal<string | null>(null);
-
-  addDay() {
-    this.dayNumber.set(this.dayNumber() + 1);
-  }
-
-  resetDay() {
-    this.dayNumber.set(1);
-  }
-
-  accounts = signal<Account[]>([
-    {
-      id: '1',
-      accountNumber: '1223-4452-5432-4532',
-      balance: 100000,
-      ownerName: 'Apip',
-      currency: 'IDR',
-      accountType: 'savings',
-    },
-    {
-      id: '2',
-      accountNumber: '1223-4452-5432-7764',
-      balance: 90000000,
-      ownerName: 'Apip',
-      currency: 'IDR',
-      accountType: 'checking',
-    },
-    {
-      id: '3',
-      accountNumber: '1223-9982-5432-4532',
-      balance: 100000,
-      ownerName: 'Apip',
-      currency: 'IDR',
-      accountType: 'savings',
-    },
-  ]);
-
-  totalBalance = computed(() =>
-    this.accounts()
-      .filter((e) => e.currency === 'IDR')
-      .reduce((sum, a) => sum + a.balance, 0),
-  );
-
-  totalAccount = computed(() => this.accounts().length);
+  transferStatus = signal(false);
+  transferMessage = signal('');
 
   addRandomAccount() {
-    const newAcc: Account = {
-      id: crypto.randomUUID(),
+    this.accountService.add({
       accountNumber: `${Math.floor(Math.random() * 9000 + 1000)}-XXXX-XXXX`,
       balance: Math.floor(Math.random() * 100000),
       ownerName: this.name(),
       currency: 'IDR',
       accountType: Math.random() > 0.5 ? 'checking' : 'savings',
-    };
+    });
+  }
 
-    this.accounts.update((datas) => [...datas, newAcc]);
+  onCardClicked(account: Account) {
+    this.selectedId.update((current) => (current === account.id ? null : account.id));
+  }
+
+  onCardDelete(id: string) {
+    this.accountService.remove(id);
+    if (this.selectedId() == id) this.selectedId.set(null);
   }
 
   resetData() {
-    this.accounts.set([]);
+    this.accountService.clear();
     this.selectedId.set(null);
   }
 
   selectedAccount() {
     const id = this.selectedId();
     if (!id) return null;
-    return this.accounts().find((v) => v.id === id) ?? null;
+    return this.accountService.findById(id);
   }
 
   selectedCard(account: Account) {
@@ -182,10 +180,16 @@ export class App {
     console.log('Card clicked:', account);
   }
 
-  deletedCard(id: string) {
-    this.accounts.update((list) => {
-      return list.filter((v) => v.id !== id);
-    });
-    if (this.selectedId() === id) this.selectedId.set(null);
+  testTransfer() {
+    const accounts = this.accountService.accounts();
+    if (accounts.length < 2) return;
+
+    const result = this.accountService.transfer(accounts[0].id, accounts[1].id, 100000);
+    this.transferMessage.set(result.message);
+    this.transferStatus.set(result.success);
+
+    setTimeout(() => {
+      this.transferMessage.set('');
+    }, 3000);
   }
 }
