@@ -1,0 +1,44 @@
+<div class="page">
+  <a [routerLink]="['/dashboard']" class="back">Kembali</a>
+
+  @if (account()) {
+    <div class="detail-card">
+      <div class="header">
+        <span class="type">{{ account()!.accountType === 'savings' ? 'Tabungan' : 'Giro' }}</span>
+        <span class="number">{{ account()!.accountNumber }}</span>
+      </div>
+      <div class="owner">{{ account()!.ownerName }}</div>
+      <div class="balance">
+        {{ account()!.currency }} {{ account()!.balance | number: '1.0-0' }}
+      </div>
+    </div>
+
+    <h3>Riwayat Transaksi Akun Ini ({{ accountTx().length }})</h3>
+    @if (accountTx().length === 0) {
+      <p class="empty">Belum ada transaksi.</p>
+    } @else {
+      @for (tx of accountTx(); track tx.id) {
+        <div
+          class="tx"
+          [class.debit]="tx.transactionType === 'debit'"
+          [class.credit]="tx.transactionType"
+        >
+          <div class="tx-header">
+            <span>{{ tx.transactionType === 'debit' ? '↓ DEBIT' : '↑ CREDIT' }}</span>
+            <span class="time">{{ tx.timestamp | date: 'short' }}</span>
+          </div>
+          <div class="tx-desc">{{ tx.description }}</div>
+          <div class="tx-amount">
+            {{ tx.transactionType === 'debit' ? '-' : '+' }}{{ tx.amount | number: '1.0-0' }} IDR
+          </div>
+        </div>
+      }
+    }
+  } @else {
+    <div class="not-found">
+      <h2>Akun tidak ditemukan 😢</h2>
+      <p>ID: {{ accountId() }}</p>
+      <a [routerLink]="['/dashboard']">Kembali ke Dashboard</a>
+    </div>
+  }
+</div>

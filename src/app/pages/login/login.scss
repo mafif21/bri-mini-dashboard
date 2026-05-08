@@ -1,0 +1,72 @@
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1976d2, #283593);
+  font-family: 'Fira Code', monospace;
+}
+.login-card {
+  background: white;
+  padding: 2.5rem;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 400px;
+}
+h1 {
+  color: #1976d2;
+  margin: 0 0 0.5rem;
+}
+.subtitle {
+  color: #888;
+  margin-bottom: 1.5rem;
+}
+label {
+  display: block;
+  margin: 1rem 0;
+  color: #555;
+}
+input {
+  width: 100%;
+  padding: 0.6rem;
+  margin-top: 0.25rem;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-family: inherit;
+}
+input:focus {
+  outline: 2px solid #1976d2;
+  border-color: transparent;
+}
+button {
+  width: 100%;
+  padding: 0.75rem;
+  margin-top: 1rem;
+  cursor: pointer;
+  border: none;
+  background: #1976d2;
+  color: white;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-family: inherit;
+}
+button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+button:not(:disabled):hover {
+  background: #1565c0;
+}
+.error {
+  color: #c62828;
+  font-size: 0.9rem;
+  margin: 0.5rem 0;
+}
+.hint {
+  color: #888;
+  font-size: 0.8rem;
+  text-align: center;
+  margin-top: 1rem;
+}

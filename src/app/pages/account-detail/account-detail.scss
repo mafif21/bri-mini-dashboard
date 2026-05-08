@@ -1,0 +1,77 @@
+.page {
+  padding: 2rem;
+  font-family: 'Fira Code', monospace;
+  max-width: 600px;
+  margin: 2rem auto;
+}
+.back {
+  color: #1976d2;
+  text-decoration: none;
+  display: inline-block;
+  margin-bottom: 1rem;
+}
+.back:hover {
+  text-decoration: underline;
+}
+.detail-card {
+  padding: 2rem;
+  background: linear-gradient(135deg, #1976d2, #42a5f5);
+  color: white;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+}
+.header {
+  display: flex;
+  justify-content: space-between;
+  opacity: 0.9;
+  margin-bottom: 1rem;
+}
+.owner {
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+}
+.balance {
+  font-size: 2rem;
+  font-weight: bold;
+}
+h3 {
+  color: #455a64;
+}
+.empty {
+  color: #999;
+}
+.tx {
+  padding: 0.75rem;
+  margin: 0.5rem 0;
+  background: white;
+  border-radius: 6px;
+  border-left: 3px solid #ccc;
+}
+.tx.debit {
+  border-left-color: #c62828;
+}
+.tx.credit {
+  border-left-color: #2e7d32;
+}
+.tx-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+}
+.time {
+  color: #888;
+}
+.tx-amount {
+  font-weight: bold;
+  margin-top: 0.25rem;
+}
+.debit .tx-amount {
+  color: #c62828;
+}
+.credit .tx-amount {
+  color: #2e7d32;
+}
+.not-found {
+  text-align: center;
+  padding: 3rem;
+}

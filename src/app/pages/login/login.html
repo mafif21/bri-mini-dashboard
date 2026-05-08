@@ -1,0 +1,23 @@
+<div class="page">
+  <div class="login-card">
+    <h1>🏦 BRI Dashboard</h1>
+    <p class="subtitle">Login untuk lanjut</p>
+
+    <label>
+      Username
+      <input type="text" [(ngModel)]="username" placeholder="username" autofocus />
+    </label>
+    <label>
+      Password
+      <input type="text" [(ngModel)]="password" placeholder="password" autofocus />
+    </label>
+
+    @if (error()) {
+      <p class="error">{{ error() }}</p>
+    }
+
+    <button (click)="onLogin()" [disabled]="!username() || !password()">Login</button>
+
+    <p class="hint">💡 Demo: gunakan apa aja, ini cuma mock</p>
+  </div>
+</div>

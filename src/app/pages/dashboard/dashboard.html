@@ -1,0 +1,30 @@
+<div class="page">
+  <header>
+    <h1>Halo, {{ name() }}! 👋</h1>
+    <p class="subtitle">
+      Total saldo:
+      <strong>Rp.{{ accountService.totalBalance() | number: '1.0-0' }}</strong>
+    </p>
+    <p class="account-count">Kamu punya: {{ accountService.accountTotal() }} akun aktif</p>
+  </header>
+
+  <app-balance-summary [totalBalance]="accountService.totalBalance()"></app-balance-summary>
+
+  <div class="quick-actions">
+    <a [routerLink]="['/transfer']" class="action-btn primary"> 💸 Transfer </a>
+    <button (click)="addRandomAccount()" class="action-btn">+ Akun baru</button>
+  </div>
+
+  <h3>Akun Saya</h3>
+  @for (account of accountService.accounts(); track account.id) {
+    <app-account-card
+      [account]="account"
+      (cardClicked)="goToDetail($event)"
+      (cardDeleted)="onCardDelete($event)"
+    />
+  } @empty {
+    <p class="empty">Belum ada akun. 🪙</p>
+  }
+
+  <app-transaction-list></app-transaction-list>
+</div>
