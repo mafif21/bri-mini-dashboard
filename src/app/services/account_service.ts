@@ -76,20 +76,24 @@ export class AccountService {
     return !!account && account.balance >= amount && amount > 0;
   }
 
-  transfer(fromId: string, toId: string, amount: number): { success: boolean; message: string } {
-    if (fromId === toId)
+  transfer(
+    fromId: string,
+    toAccountNumber: string,
+    amount: number,
+  ): { success: boolean; message: string } {
+    const toAccount = this.accounts().find((e) => e.accountNumber === toAccountNumber);
+    if (!toAccount) return { success: false, message: 'Akun tujuan tidak ditemukan' };
+
+    if (fromId === toAccount.id)
       return { success: false, message: 'Tidak bisa transfer ke akun yang sama' };
 
     if (!this.canTransfer(fromId, amount))
       return { success: false, message: 'Saldo tidak cukup atau jumlah tidak valid' };
 
-    const toAccount = this.findById(toId);
-    if (!toAccount) return { success: false, message: 'Akun tujuan tidak ditemukan' };
-
     this.accountState.update((datas) => {
       return datas.map((acc) => {
         if (acc.id === fromId) return { ...acc, balance: acc.balance - amount };
-        if (acc.id === toId) return { ...acc, balance: acc.balance + amount };
+        if (acc.id === toAccount.id) return { ...acc, balance: acc.balance + amount };
         return acc;
       });
     });
@@ -102,7 +106,7 @@ export class AccountService {
     });
 
     this.transactionService.addLog({
-      accountId: toId,
+      accountId: toAccount.id,
       amount,
       transactionType: 'credit',
       description: `Transfer dari akun ${fromId}`,

@@ -1,0 +1,48 @@
+<div class="page">
+  <a [routerLink]="['/dashboard']" class="back">← Kembali</a>
+  <h1>📤 Bulk Transfer</h1>
+  <p>Kirim ke beberapa rekening sekaligus.</p>
+
+  <form [formGroup]="bulkTransferForm" (ngSubmit)="onSubmit()">
+    <div class="field">
+      <label>Dari Akun</label>
+      <select formControlName="fromAccountId">
+        <option value="">Pilih akun</option>
+        @for (acc of accountService.accounts(); track acc.id) {
+          <option [value]="acc.id">
+            {{ acc.accountNumber }} — {{ acc.balance | number: '1.0-0' }}
+          </option>
+        }
+      </select>
+    </div>
+
+    <h3>Penerima ({{ recipients.length }})</h3>
+
+    <div formArrayName="recipients">
+      @for (recipient of recipients.controls; track $index; let i = $index) {
+        <div class="recipient-row" [formGroupName]="i">
+          <input formControlName="toAccountNumber" placeholder="XXXX-XXXX-XXXX" />
+          <input formControlName="amount" type="number" placeholder="Jumlah" />
+          <button type="button" (click)="removeRecipients(i)" class="remove-btn">×</button>
+        </div>
+      }
+    </div>
+
+    <button type="button" (click)="addRecipient()" class="add-btn">+ Tambah penerima</button>
+
+    <div class="summary">
+      <strong>Total: Rp {{ totalAmount() | number: '1.0-0' }}</strong>
+    </div>
+
+    <button type="submit" [disabled]="bulkTransferForm.invalid" class="submit-btn">
+      Kirim Semua
+    </button>
+  </form>
+
+  <details class="debug">
+    <summary>Debug</summary>
+    <pre>{{ bulkTransferForm.value | json }}</pre>
+    <pre>Status: {{ bulkTransferForm.status }}</pre>
+    <!-- <pre>Errors: {{ getAllErrors() | json }}</pre> -->
+  </details>
+</div>

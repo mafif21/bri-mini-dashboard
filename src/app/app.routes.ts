@@ -27,6 +27,11 @@ export const routes: Routes = [
         path: 'transfer',
         loadComponent: () => import('./pages/transfer/transfer').then((m) => m.Transfer),
       },
+      {
+        path: 'bulk-transfer',
+        loadComponent: () =>
+          import('./pages/bulk-transfer/bulk-transfer').then((m) => m.BulkTransfer),
+      },
     ],
   },
 

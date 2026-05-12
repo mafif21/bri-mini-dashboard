@@ -1,4 +1,92 @@
 <div class="page">
   <a [routerLink]="['/dashboard']">← Kembali</a>
-  <p>Coming Soon</p>
+  <h1>💸 Transfer Dana</h1>
+
+  <form [formGroup]="transferForm" (ngSubmit)="onSubmit()" class="form">
+    <div class="field">
+      <label>Dari Akun *</label>
+      <select formControlName="fromAccountId" [class.invalid]="isInvalid('fromAccountId')">
+        <option value="">-- Pilih akun pengirim --</option>
+        @for (acc of accountService.accounts(); track acc.id) {
+          <option [value]="acc.id">
+            {{ acc.accountNumber }} - Saldo: {{ acc.balance | number: '1.0-0' }} {{ acc.currency }}
+          </option>
+        }
+      </select>
+      @if (isInvalid('fromAccountId')) {
+        <small class="error">Wajib pilih akun pengirim</small>
+      }
+    </div>
+
+    <div class="field">
+      <label>Ke Akun</label>
+      <input
+        formControlName="toAccountNumber"
+        [class.invalid]="isInvalid('toAccountNumber')"
+        placeholder="XXXX-XXXX-XXXX"
+      />
+      <small class="hint">Format: 4 digit-4 digit-4 digit</small>
+      @if (isInvalid('toAccountNumber')) {
+        <small class="error">
+          @if (transferForm.controls.toAccountNumber.errors?.['required']) {
+            Nomor Rekening Wajib Diisi
+          } @else if (transferForm.controls.toAccountNumber.errors?.['pattern']) {
+            Format harus XXXX-XXXX-XXXX (12 digit dengan strip)
+          } @else if (transferForm.controls.toAccountNumber.errors?.['sameAccount']) {
+            Tidak bisa transfer ke akun yang sama dengan pengirim
+          }
+        </small>
+      }
+    </div>
+
+    <div class="field">
+      <label>Jumlah (IDR)</label>
+      <input
+        formControlName="amount"
+        type="number"
+        placeholder="100000"
+        [class.invalid]="isInvalid('amount')"
+      />
+      @if (isInvalid('amount')) {
+        <small class="error">
+          @if (transferForm.controls.amount.errors?.['required']) {
+            Nominal wajib diisi
+          } @else if (transferForm.controls.amount.errors?.['min']) {
+            Nominal transfer adalah 10000
+          }
+        </small>
+      }
+    </div>
+
+    <!-- Note -->
+    <div class="field">
+      <label>Catatan (opsional)</label>
+      <textarea formControlName="note" placeholder="Untuk apa transfer ini..." rows="3"></textarea>
+    </div>
+
+    @if (submitMessage()) {
+      <div
+        class="alert"
+        [class.success]="submitMessage()?.type === 'success'"
+        [class.error-alert]="submitMessage()?.type === 'error'"
+      >
+        {{ submitMessage()?.text }}
+      </div>
+    }
+
+    <button type="submit" [disabled]="transferForm.invalid || isSubmit()" class="submit-btn">
+      @if (isSubmit()) {
+        Memproses...
+      } @else {
+        Transfer Sekarang
+      }
+    </button>
+
+    <details class="debug">
+      <summary>Debug</summary>
+      <pre>{{ transferForm.value | json }}</pre>
+      <pre>Status: {{ transferForm.status }}</pre>
+      <pre>Errors: {{ getAllErrors() | json }}</pre>
+    </details>
+  </form>
 </div>

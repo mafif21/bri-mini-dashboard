@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormControl, FormGroup, FormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
@@ -17,6 +17,11 @@ export class Login {
   username = signal('');
   password = signal('');
   error = signal('');
+
+  loginForm = new FormGroup({
+    username: new FormControl('', [Validators.required, Validators.pattern('^[a-zA-Z0-9]+$')]),
+    password: new FormControl('', [Validators.required]),
+  });
 
   onLogin() {
     if (!this.username() || !this.password()) {
